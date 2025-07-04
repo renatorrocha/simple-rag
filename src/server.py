@@ -1,6 +1,8 @@
 from fastapi import FastAPI, File
 from typing import Annotated
 from services.read_file import read_file
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.vectorstores import InMemoryVectorStore
 
 app = FastAPI(
     title="Maid API",
@@ -19,9 +21,12 @@ async def generate_embeddings(
 ):
     extracted_data = read_file(file)
 
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = text_splitter.split_documents(extracted_data)
+
     return {
         "message": "Arquivo processado com sucesso!",
-        "rows": extracted_data,
+        "rows": chunks,
     }
 
 
